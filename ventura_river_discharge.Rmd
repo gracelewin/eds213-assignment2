@@ -1,0 +1,32 @@
+---
+title: "Ventura River Discharge"
+author: "Grace Lewin"
+date: "10/6/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dataRetrieval)
+library(tidyverse)
+```
+```{r}
+siteNumber <- "11118500"
+parameterCd <- "00060" # discharge
+startDate <- ""
+endDate <- "2021-10-05"
+
+discharge <- readNWISdv(siteNumber, parameterCd, startDate, endDate)
+
+ggplot(discharge, aes(x = Date, y = X_00060_00003)) +
+  geom_line() +
+  theme_minimal() +
+  labs(title = "Discharge of the Ventura River",
+       x = "Date",
+       y = "Discharge (ft^3/s)")
+
+```
+

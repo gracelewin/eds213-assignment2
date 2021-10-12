@@ -1,0 +1,51 @@
+---
+title: "Alaska"
+author: "Grace Lewin"
+date: "10/6/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(metajam)
+library(tidyverse)
+library(here)
+```
+
+metajam documentation: https://nceas.github.io/metajam/articles/dataset-single.html
+
+
+## Download the data
+
+Data package: https://doi.org/10.5063/F1N58JPP
+
+```{r, error = TRUE}
+data_url <- "https://knb.ecoinformatics.org/knb/d1/mn/v2/object/urn%3Auuid%3A7fc6f6db-c5ea-426a-a743-1f2edafb43b8"
+path <- here()
+
+metajam::download_d1_data(data_url = data_url, path = path)
+```
+
+
+data$attribute_metadata %>% view() # shows metadata
+data$data %>% view() # shows actual data
+
+```{r}
+data_path <- here("doi_10.5063_F1CJ8BPH__household_language__csv")
+```
+```{r}
+data_list<- metajam::read_d1_files(data_path)
+```
+```{r}
+data_list$attribute_metadata
+
+data <- data_list$data
+metadata <- data_list$summary_metadata
+
+#english <- data %>% 
+  #filter(2009 <= Year <= 2015)
+```
+
