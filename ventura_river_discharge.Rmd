@@ -7,26 +7,80 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-```
-
-```{r}
 library(dataRetrieval)
 library(tidyverse)
+library(kableExtra)
 ```
+
+
 ```{r}
 siteNumber <- "11118500"
 parameterCd <- "00060" # discharge
-startDate <- ""
-endDate <- "2021-10-05"
+startDate <- "2019-10-01"
+endDate <- "2020-10-05"
 
-discharge <- readNWISdv(siteNumber, parameterCd, startDate, endDate)
+#siteNumber_SP <- '11113500'
+discharge <- readNWISdata(sites=siteNumber, service="iv", 
+                   parameterCd="00060", 
+                   startDate=startDate,endDate=endDate,
+                   tz="America/Los_Angeles")
 
-ggplot(discharge, aes(x = Date, y = X_00060_00003)) +
-  geom_line() +
+
+ggplot(discharge, aes(x = dateTime, y = X_00060_00000)) +
+  geom_line(aes(color = site_no)) +
+  scale_color_discrete(name = "Site", labels = "Ventura") +
   theme_minimal() +
-  labs(title = "Discharge of the Ventura River",
+  labs(title = "Discharge of the Ventura Creek",
+       subtitle = "Oct. 1, 2019 - Oct. 5, 2020",
+       x = "Date",
+       y = "Discharge (ft^3/s)")
+```
+
+
+```{r}
+siteNumber1 <- c("11118500", '11113500')
+parameterCd <- "00060" # discharge
+startDate <- "2021-10-04T18:00Z"
+endDate <- "2021-10-06T00:00Z"
+
+#siteNumber_SP <- '11113500'
+discharge1 <- readNWISdata(sites=siteNumber1, service="iv", 
+                   parameterCd="00060", 
+                   startDate=startDate,endDate=endDate,
+                   tz="America/Los_Angeles")
+
+
+ggplot(discharge1, aes(x = dateTime, y = X_00060_00000)) +
+  geom_line(aes(color = site_no)) +
+  scale_color_discrete(name = "Site", labels = (c("Santa Paula", "Ventura"))) +
+  theme_minimal() +
+  labs(title = "Discharge of the Ventura and Santa Paula Creek",
+       subtitle = "Oct. 4 - 6 2021",
        x = "Date",
        y = "Discharge (ft^3/s)")
 
+#peak Santa Paula flow
+peak_SP <- discharge1 %>% 
+  filter(site_no == '11113500') %>% 
+  filter(X_00060_00000 == max(X_00060_00000)) %>% 
+  select(dateTime, X_00060_00000)
+
+#peak Ventura flow
+peak_V <- discharge1 %>% 
+  filter(site_no == '11118500') %>% 
+  filter(X_00060_00000 == max(X_00060_00000)) %>% 
+  select(dateTime, X_00060_00000)
 ```
+
+
+2. The best way I found to query multiple sites using this R package is to put the different site numbers into a concatenated list (using `c()`) labeled `siteNumber`. Then, you can call `site = siteNumber` in the `readNWISdata()` function, and it will give you the data for all of the site numbers you inputted into that list.  
+
+3. See above plot showing the stream flow in the Ventura and Santa Paula creeks for October 4-6. We can see from this plot and the tables below that the Santa Paula stream flow peaked on Oct. 5th at about from 3:30am - 4:15am. In the Ventura creek, there was a slight peak from about 12:25am - 10:25am. 
+
+```{r}
+kable(peak_SP, col.names = c("Date and Time", "Flow"))
+
+kable(peak_V, col.names = c("Date and Time", "Flow"))
+```
+
 
